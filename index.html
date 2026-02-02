@@ -89,16 +89,130 @@
 
 <script>
     // --- KONFIGURASI ---
-    const SCRIPT_URL = "PASTE_URL_WEB_APP_ANDA_DISINI"; 
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyrQLwLxUTeoRK17qmgc2SGq6kXRu1DA-vuumFvp40wlzK60z31Ngjp3lgN60uBUd_22w/exec"; 
 
     const DATA_SISWA = {
-        "X APHP": ["Siti Fitriyani", "Siti Nur Afiani", "Muhamad Hasbi", "Reski Hidayat", "Mutia Lasmi Insani", "Rizki Muhamad Fauzi", "Rifki Age", "Ramdan Maulana", "Resya Rahmawati", "Saepul Ulum", "Gunawan", "Ilham Fauzi", "M.Iqbal Pratama Dn.", "Muhamad Andika", "Ruli Raisman", "Fauzan Arifurrohman"],
-        "X DKV 1": ["Rikza Dzipfikri", "Karin Nuraeni", "Siti Nafisa", "Wendi", "Lutvi Abdul Jabar", "Rizki Abdul Rozak", "M.Parhan Maulana", "Mh Risk", "Rangga Al", "Fitrah Rizki", "Fahmi Kurniansyah", "Rama Radila Putra", "Raynaldy Raftansyah", "Purnama Maulidan", "Dede Nurul Alamsyah", "Ilfah Sadiatul Ummah", "Faiz Kurniawan", "Ayyisy Maulida Isnaeni", "Risa Fadila", "Pahri Kirman", "Anwar Mutaqin"],
-        "X DKV 2": ["Muhamad Regit Azharul A", "Muhamad Azam Alghifari", "Rangga Prayoga", "Salpa Fajriatul M", "Saptiana", "Fathan Putra Nadadan", "Rafka Fikri Azani", "Sahrul Gunawan", "Masyail Lu'luil Maknun", "Ripan Lesmana", "Paradina Aulia", "Syifa Azzahra", "Rizqon", "Dede Dian Ajhari", "Erik Heryawan", "Galih Desta M", "Siti Paujiyah", "Yulia Astiani", "Akbar Ferdiansyah", "Revan Rahmawan"]
+        const DATA_SISWA = {
+        "X APHP": [
+            "Fauzan Arifurrohman",
+            "Gunawan",
+            "Ilham Fauzi",
+            "M.Iqbal Pratama Dn.",
+            "Muhamad Andika",
+            "Muhamad Hasbi",
+            "Mutia Lasmi Insani",
+            "Ramdan Maulana",
+            "Reski Hidayat",
+            "Resya Rahmawati",
+            "Rifki Age",
+            "Rizki Miuhamad Fauzi",
+            "Rizki Muhamad Fauzi",
+            "Ruli Raisman",
+            "Saepul Ulum",
+            "Siti Fitriyani",
+            "Siti Nur Afiani"
+        ],
+        "X DKV 1": [
+            "Anwar Mutaqin",
+            "Ayyisy Maulida Isnaeni",
+            "Dede Nurul Alamsyah",
+            "Fahmi Kurniansyah",
+            "Faiz Kurniawan",
+            "Fitrah Rizki",
+            "Ilfah Sadiatul Ummah",
+            "Karin Nuraeni",
+            "Lutvi Abdul Jabar",
+            "M.Parhan Maulana",
+            "Mh Risk",
+            "Pahri Kirman",
+            "Purnama Maulidan",
+            "Rama Radila Putra",
+            "Rangga Al",
+            "Raynaldy Raftansyah",
+            "Rikza Dzilfikri",
+            "Rikza Dzipfikri",
+            "Risa Fadila",
+            "Rizki Abdul Rozak",
+            "Siti Nafisa",
+            "Wendi"
+        ],
+        "X DKV 2": [
+            "Akbar Ferdiansyah",
+            "Dede Dian Ajhari",
+            "Erik Heryawan",
+            "Fathan Putra Nadadan",
+            "Galih Desta M",
+            "Huh",
+            "Masyail Lu'luil Maknun",
+            "Muhamad Azam Alghifari",
+            "Muhamad Regit Azharul A",
+            "Paradina Aulia",
+            "Rafka Fikri Azani",
+            "Rangga Prayoga",
+            "Revan Rahmawan",
+            "Ripan Lesmana",
+            "Rizqon",
+            "Sahrul Gunawan",
+            "Salpa Fajriatul M",
+            "Saptiana",
+            "Siti Paujiyah",
+            "Syifa Azzahra",
+            "Yulia Astiani"
+        ]
     };
 
-    const SOAL = ["Datang tepat waktu", "Masuk kelas sebelum bel", "Mematuhi tata tertib", "Seragam sesuai aturan", "Tugas tepat waktu", "Tidak menyontek", "Tanggung jawab", "Meminta maaf", "Menjaga kebersihan", "Buang sampah pada tempatnya", "Menghormati guru", "Bicara sopan", "Tidak kasar", "Membantu teman", "Jujur", "Menjaga fasilitas", "Menjaga nama baik", "Fokus belajar", "Tidak main HP saat jamkos", "Kerja sendiri", "Siap konsekuensi", "Perbaiki diri", "Hargai pendapat", "Tidak bully", "Tahan emosi", "Jujur walau sulit", "Jaga ketertiban", "Contoh baik", "Amanah", "Piket kelas", "Tidak bolos", "Tertib upacara", "Sopan di medsos", "Anti hoaks", "Bersyukur", "Hargai waktu", "Disiplin mandiri", "Berdoa", "Hormat yg tua", "Tanpa pamrih", "Jaga ucapan", "Akui kelebihan diri", "Konsisten baik", "Belajar dr salah", "Tidak menyalahkan", "Ingin lebih baik", "Tanggung jawab siswa", "Komitmen aturan", "Bangga disiplin", "Perbaiki akhlak"];
-
+    const SOAL = [
+        "Saya datang ke sekolah tepat waktu setiap hari.",
+        "Saya masuk kelas sebelum bel berbunyi.",
+        "Saya mematuhi tata tertib sekolah meskipun tidak diawasi.",
+        "Saya mengenakan seragam sesuai aturan sekolah.",
+        "Saya mengerjakan tugas sekolah tepat waktu.",
+        "Saya tidak menyontek saat ulangan atau tugas.",
+        "Saya bertanggung jawab atas kesalahan yang saya buat.",
+        "Saya meminta maaf jika melakukan kesalahan.",
+        "Saya menjaga kebersihan kelas tanpa disuruh.",
+        "Saya membuang sampah pada tempatnya.",
+        "Saya menghormati guru di dalam dan luar kelas.",
+        "Saya berbicara sopan kepada guru dan teman.",
+        "Saya tidak berkata kasar atau menghina orang lain.",
+        "Saya membantu teman yang kesulitan belajar.",
+        "Saya bersikap jujur dalam setiap keadaan.",
+        "Saya tidak merusak fasilitas sekolah.",
+        "Saya menjaga nama baik sekolah di manapun berada.",
+        "Saya fokus memperhatikan saat guru menjelaskan pelajaran.",
+        "Saya tidak bermain HP saat pelajaran berlangsung.",
+        "Saya mengerjakan tugas sendiri sebelum meminta bantuan.",
+        "Saya siap menerima konsekuensi jika melanggar aturan.",
+        "Saya berusaha memperbaiki diri segera setelah ditegur.",
+        "Saya menghargai perbedaan pendapat dengan teman.",
+        "Saya tidak membully atau merendahkan teman.",
+        "Saya mampu menahan emosi saat sedang marah.",
+        "Saya tetap berkata jujur meskipun dalam situasi sulit.",
+        "Saya ikut membantu menjaga ketertiban kelas.",
+        "Saya berusaha menjadi contoh perilaku baik bagi teman.",
+        "Saya bertanggung jawab menjaga amanah yang diberikan.",
+        "Saya melaksanakan jadwal piket dengan sungguh-sungguh.",
+        "Saya tidak pernah membolos sekolah.",
+        "Saya mematuhi peraturan dan hikmat saat upacara bendera.",
+        "Saya bersikap sopan dan bijak di media sosial.",
+        "Saya tidak menyebarkan berita bohong (hoaks) atau kebencian.",
+        "Saya bersyukur atas kesempatan dapat belajar di sekolah.",
+        "Saya menghargai waktu dan tidak menunda pekerjaan.",
+        "Saya berusaha disiplin meskipun tidak ada sanksi.",
+        "Saya berdoa sebelum dan sesudah kegiatan belajar.",
+        "Saya menghormati orang yang lebih tua di lingkungan sekolah.",
+        "Saya membantu orang lain dengan ikhlas tanpa pamrih.",
+        "Saya selalu menjaga ucapan dan sikap saya.",
+        "Saya mengakui kelebihan dan kekurangan diri sendiri.",
+        "Saya berusaha konsisten dalam berbuat kebaikan.",
+        "Saya belajar dari kesalahan agar tidak terulang.",
+        "Saya tidak mudah menyalahkan orang lain atas kegagalan.",
+        "Saya siap dan bertekad menjadi pribadi yang lebih baik.",
+        "Saya menjalankan tanggung jawab saya sebagai siswa.",
+        "Saya berkomitmen mematuhi seluruh aturan sekolah.",
+        "Saya merasa bangga ketika berperilaku jujur dan disiplin.",
+        "Saya ingin terus memperbaiki akhlak dan sikap saya."
+    ];
     // Init
     const el = (id) => document.getElementById(id);
     const list = el('survey-list');
