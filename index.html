@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Survey Karakter</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #2563eb; --bg: #f1f5f9; --text: #1e293b; --white: #ffffff; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 80px; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px 15px; }
+        .card { background: var(--white); padding: 24px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        
+        h2 { margin: 0 0 20px 0; font-size: 18px; color: var(--primary); text-align: center; text-transform: uppercase; letter-spacing: 1px; }
+        label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 8px; color: #64748b; }
+        
+        select, button { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #cbd5e1; font-size: 14px; box-sizing: border-box; font-family: inherit; }
+        select:focus { border-color: var(--primary); outline: 2px solid #bfdbfe; }
+        
+        button { background: var(--primary); color: white; border: none; font-weight: 700; cursor: pointer; margin-top: 10px; transition: 0.2s; }
+        button:hover { background: #1d4ed8; }
+        button:active { transform: scale(0.98); }
+
+        /* Soal */
+        .q-item { background: var(--white); padding: 20px; border-radius: 12px; margin-bottom: 12px; border: 1px solid #e2e8f0; }
+        .q-text { font-size: 14px; font-weight: 600; display: block; margin-bottom: 15px; line-height: 1.5; }
+        .options { display: flex; gap: 5px; background: #f8fafc; padding: 8px; border-radius: 8px; }
+        .opt-label { flex: 1; text-align: center; cursor: pointer; position: relative; }
+        .opt-label input { position: absolute; opacity: 0; cursor: pointer; }
+        .opt-num { display: block; width: 100%; padding: 8px 0; border-radius: 6px; font-size: 14px; font-weight: bold; color: #64748b; transition: 0.2s; }
+        .opt-label input:checked ~ .opt-num { background: var(--primary); color: white; box-shadow: 0 2px 4px rgba(37,99,235,0.3); }
+
+        /* Report */
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th { text-align: left; padding: 12px; color: #64748b; border-bottom: 2px solid #f1f5f9; }
+        td { padding: 12px; border-bottom: 1px solid #f8fafc; }
+        .badge { background: #dbeafe; color: var(--primary); padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 12px; }
+
+        /* Nav */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--white); display: flex; border-top: 1px solid #e2e8f0; z-index: 100; padding-bottom: env(safe-area-inset-bottom); }
+        .nav-item { flex: 1; padding: 15px; text-align: center; font-size: 12px; font-weight: 700; color: #94a3b8; cursor: pointer; }
+        .nav-item.active { color: var(--primary); background: #eff6ff; }
+        
+        .hidden { display: none !important; }
+        .loader { position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 999; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--primary); font-weight: bold; }
+        .spinner { width: 40px; height: 40px; border: 4px solid #e2e8f0; border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div id="loader" class="loader hidden"><div class="spinner"></div><span id="load-text">Memuat...</span></div>
+
+<div id="page-siswa" class="container">
+    <div class="card">
+        <h2>Identitas Siswa</h2>
+        <label>KELAS</label>
+        <select id="kelas" onchange="loadNama()">
+            <option value="">-- Pilih Kelas --</option>
+            <option value="X APHP">X APHP</option>
+            <option value="X DKV 1">X DKV 1</option>
+            <option value="X DKV 2">X DKV 2</option>
+        </select>
+        <div style="height: 15px;"></div>
+        <label>NAMA LENGKAP</label>
+        <select id="nama" disabled><option value="">Pilih Kelas Dulu</option></select>
+    </div>
+    
+    <div id="survey-list"></div>
+    <button onclick="kirimSurvey()">KIRIM JAWABAN</button>
+</div>
+
+<div id="page-wali" class="container hidden">
+    <div class="card">
+        <h2>Laporan Kelas</h2>
+        <button onclick="loadReport()" style="margin-bottom:15px; background:#fff; color:var(--primary); border:1px solid var(--primary)">🔄 Refresh Data</button>
+        <div id="report-kelas">Belum ada data</div>
+    </div>
+    <div class="card">
+        <h2>Riwayat Input</h2>
+        <div id="report-siswa">Belum ada data</div>
+    </div>
+</div>
+
+<div class="bottom-nav">
+    <div class="nav-item active" onclick="nav('siswa')">SISWA</div>
+    <div class="nav-item" onclick="nav('wali')">WALI KELAS</div>
+</div>
+
+<script>
+    // --- KONFIGURASI ---
+    const SCRIPT_URL = "PASTE_URL_WEB_APP_ANDA_DISINI"; 
+
+    const DATA_SISWA = {
+        "X APHP": ["Siti Fitriyani", "Siti Nur Afiani", "Muhamad Hasbi", "Reski Hidayat", "Mutia Lasmi Insani", "Rizki Muhamad Fauzi", "Rifki Age", "Ramdan Maulana", "Resya Rahmawati", "Saepul Ulum", "Gunawan", "Ilham Fauzi", "M.Iqbal Pratama Dn.", "Muhamad Andika", "Ruli Raisman", "Fauzan Arifurrohman"],
+        "X DKV 1": ["Rikza Dzipfikri", "Karin Nuraeni", "Siti Nafisa", "Wendi", "Lutvi Abdul Jabar", "Rizki Abdul Rozak", "M.Parhan Maulana", "Mh Risk", "Rangga Al", "Fitrah Rizki", "Fahmi Kurniansyah", "Rama Radila Putra", "Raynaldy Raftansyah", "Purnama Maulidan", "Dede Nurul Alamsyah", "Ilfah Sadiatul Ummah", "Faiz Kurniawan", "Ayyisy Maulida Isnaeni", "Risa Fadila", "Pahri Kirman", "Anwar Mutaqin"],
+        "X DKV 2": ["Muhamad Regit Azharul A", "Muhamad Azam Alghifari", "Rangga Prayoga", "Salpa Fajriatul M", "Saptiana", "Fathan Putra Nadadan", "Rafka Fikri Azani", "Sahrul Gunawan", "Masyail Lu'luil Maknun", "Ripan Lesmana", "Paradina Aulia", "Syifa Azzahra", "Rizqon", "Dede Dian Ajhari", "Erik Heryawan", "Galih Desta M", "Siti Paujiyah", "Yulia Astiani", "Akbar Ferdiansyah", "Revan Rahmawan"]
+    };
+
+    const SOAL = ["Datang tepat waktu", "Masuk kelas sebelum bel", "Mematuhi tata tertib", "Seragam sesuai aturan", "Tugas tepat waktu", "Tidak menyontek", "Tanggung jawab", "Meminta maaf", "Menjaga kebersihan", "Buang sampah pada tempatnya", "Menghormati guru", "Bicara sopan", "Tidak kasar", "Membantu teman", "Jujur", "Menjaga fasilitas", "Menjaga nama baik", "Fokus belajar", "Tidak main HP saat jamkos", "Kerja sendiri", "Siap konsekuensi", "Perbaiki diri", "Hargai pendapat", "Tidak bully", "Tahan emosi", "Jujur walau sulit", "Jaga ketertiban", "Contoh baik", "Amanah", "Piket kelas", "Tidak bolos", "Tertib upacara", "Sopan di medsos", "Anti hoaks", "Bersyukur", "Hargai waktu", "Disiplin mandiri", "Berdoa", "Hormat yg tua", "Tanpa pamrih", "Jaga ucapan", "Akui kelebihan diri", "Konsisten baik", "Belajar dr salah", "Tidak menyalahkan", "Ingin lebih baik", "Tanggung jawab siswa", "Komitmen aturan", "Bangga disiplin", "Perbaiki akhlak"];
+
+    // Init
+    const el = (id) => document.getElementById(id);
+    const list = el('survey-list');
+    
+    SOAL.forEach((q, i) => {
+        list.innerHTML += `
+        <div class="q-item" id="soal-${i}">
+            <span class="q-text">${i+1}. ${q}</span>
+            <div class="options">
+                ${[1,2,3,4,5].map(n => `
+                    <label class="opt-label">
+                        <input type="radio" name="q${i}" value="${n}">
+                        <span class="opt-num">${n}</span>
+                    </label>
+                `).join('')}
+            </div>
+        </div>`;
+    });
+
+    function loadNama() {
+        const k = el('kelas').value;
+        const n = el('nama');
+        n.innerHTML = '<option value="">-- Pilih Nama --</option>';
+        if (k && DATA_SISWA[k]) {
+            n.disabled = false;
+            DATA_SISWA[k].sort().forEach(nama => n.innerHTML += `<option value="${nama}">${nama}</option>`);
+        } else {
+            n.disabled = true;
+        }
+    }
+
+    function nav(tab) {
+        el('page-siswa').classList.toggle('hidden', tab !== 'siswa');
+        el('page-wali').classList.toggle('hidden', tab !== 'wali');
+        document.querySelectorAll('.nav-item').forEach((btn, i) => {
+            btn.classList.toggle('active', (tab === 'siswa' && i === 0) || (tab === 'wali' && i === 1));
+        });
+        if (tab === 'wali') loadReport();
+    }
+
+    function toggleLoader(show, text="Mohon Tunggu...") {
+        el('load-text').innerText = text;
+        el('loader').classList.toggle('hidden', !show);
+    }
+
+    function kirimSurvey() {
+        if (SCRIPT_URL.includes("PASTE_URL")) return alert("URL Script belum diatur!");
+        
+        const data = {
+            nama: el('nama').value,
+            kelas: el('kelas').value,
+            jawaban: []
+        };
+
+        if (!data.nama || !data.kelas) return alert("Lengkapi data diri!");
+
+        for (let i = 0; i < SOAL.length; i++) {
+            const cek = document.querySelector(`input[name="q${i}"]:checked`);
+            if (!cek) {
+                el(`soal-${i}`).scrollIntoView({ behavior: 'smooth', block: 'center' });
+                el(`soal-${i}`).style.borderColor = 'red';
+                return alert(`Soal No. ${i+1} belum diisi!`);
+            }
+            el(`soal-${i}`).style.borderColor = '#e2e8f0';
+            data.jawaban.push(cek.value);
+        }
+
+        if(!confirm("Kirim jawaban sekarang?")) return;
+
+        toggleLoader(true, "Mengirim Data...");
+        
+        // Menggunakan text/plain agar tidak terkena CORS preflight error
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(res => {
+            toggleLoader(false);
+            if (res.status === 'success') {
+                alert("Berhasil disimpan!");
+                location.reload();
+            } else {
+                alert("Gagal: " + res.message);
+            }
+        })
+        .catch(err => {
+            toggleLoader(false);
+            alert("Error koneksi, coba lagi.");
+        });
+    }
+
+    function loadReport() {
+        if (SCRIPT_URL.includes("PASTE_URL")) return;
+        toggleLoader(true, "Mengambil Data...");
+        
+        fetch(SCRIPT_URL)
+        .then(res => res.json())
+        .then(d => {
+            toggleLoader(false);
+            
+            // Render Kelas
+            if(d.perKelas.length) {
+                el('report-kelas').innerHTML = `<table><tr><th>Kelas</th><th>Siswa</th><th>Rata-rata</th></tr>` +
+                d.perKelas.map(x => `<tr><td>${x.kelas}</td><td>${x.siswa} org</td><td><span class="badge">${x.rata}</span></td></tr>`).join('') + `</table>`;
+            } else { el('report-kelas').innerHTML = "Belum ada data masuk."; }
+
+            // Render Siswa
+            if(d.perSiswa.length) {
+                el('report-siswa').innerHTML = `<table><tr><th>Nama</th><th>Skor</th></tr>` +
+                d.perSiswa.map(x => `<tr><td><b>${x.nama}</b><br><small>${x.kelas} | ${x.tanggal}</small></td><td valign="top"><span class="badge">${x.skor}</span></td></tr>`).join('') + `</table>`;
+            } else { el('report-siswa').innerHTML = "Belum ada data masuk."; }
+        })
+        .catch(err => {
+            toggleLoader(false);
+            el('report-kelas').innerHTML = "Gagal memuat.";
+        });
+    }
+</script>
+</body>
+</html>
