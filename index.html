@@ -465,8 +465,33 @@
         }
     }
 
+    // --- FUNGSI NAVIGASI DENGAN PASSWORD ---
+    // Menggunakan sessionStorage agar user hanya perlu input password sekali selama browser tidak ditutup
     function nav(tab) {
-        // Animation Reset
+        
+        // Cek Keamanan jika masuk menu Wali
+        if (tab === 'wali') {
+            const sudahLogin = sessionStorage.getItem('auth_wali_2026');
+            
+            if (!sudahLogin) {
+                const password = prompt("Masukkan PIN Keamanan untuk Guru/Wali:");
+                
+                if (password === null) {
+                    return; // Jika tekan Cancel, diam di tempat
+                }
+                
+                if (password !== '12345') {
+                    alert("Akses Ditolak: PIN Salah!");
+                    return; // Stop, jangan pindah tab
+                } else {
+                    // Simpan status login sementara
+                    sessionStorage.setItem('auth_wali_2026', 'true');
+                    alert("Akses Diberikan. Selamat datang.");
+                }
+            }
+        }
+
+        // Logika Pindah Halaman (Animation Reset)
         const s = el('page-siswa');
         const w = el('page-wali');
         
